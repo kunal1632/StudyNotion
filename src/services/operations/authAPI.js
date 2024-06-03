@@ -45,7 +45,7 @@ export function signup(
   firstName,
   lastName,
   email,
-  passowrd,
+  password,
   confirmPassword,
   otp,
   navigate
@@ -60,7 +60,7 @@ export function signup(
         firstName,
         lastName,
         email,
-        passowrd,
+        password,
         confirmPassword,
         otp,
       });
@@ -79,7 +79,7 @@ export function signup(
     toast.dismiss(toastId);
   };
 }
-export function login(email, passowrd, navigate) {
+export function login(email, password, navigate) {
   return async (dispatch) => {
     const toastId = toast.loading("Loading...");
     dispatch(setLoading(true));
@@ -87,20 +87,21 @@ export function login(email, passowrd, navigate) {
     try {
       const response = await apiConnector("POST", LOGIN_API, {
         email,
-        passowrd,
+        password,
       });
       console.log("Login API RESPONSE........", response);
       if (!response.data.success) {
         throw new Error(response.data.message);
       }
-      toast.success("Signup successfully");
+      toast.success("Login successfully");
+      dispatch(setToken(response.data.token));
       const userImage = response?.data?.user?.image
-        ? response.data.user.image
-        : `https://api.dicebear.com/5.x/initials/svg?seed=${response.data.user.firstName} ${response.data.user.lastName}`;
-      dispatch(setUser({ ...response.data.user, image: userImage }));
+        ? response?.data?.user?.image
+        : `https://api.dicebear.com/5.x/initials/svg?seed=${response?.data?.user?.firstName} ${response?.data?.user?.lastName}`;
+      dispatch(setUser({ ...response?.data?.user, image: userImage }));
 
-      localStorage.setItem("token", JSON.stringify(response.data.token));
-      localStorage.setItem("user", JSON.stringify(resetCart.data.user));
+      localStorage.setItem("token", JSON.stringify(response?.data?.token));
+      localStorage.setItem("user", JSON.stringify(response?.data?.user));
       navigate("/dashboard/my-profile");
     } catch (error) {
       console.log("LOGIN API ERROR......", error);

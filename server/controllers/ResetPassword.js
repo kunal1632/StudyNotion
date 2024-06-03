@@ -69,7 +69,7 @@ exports.resetPassword = async (req, res) => {
     const userDetails = await User.findOne({ token: token });
     // if no entry - invalid token
     if (!userDetails) {
-      return res.json({
+      return res.status(404).json({
         success: false,
         message: "Token is invalid",
       });
@@ -84,11 +84,7 @@ exports.resetPassword = async (req, res) => {
     // hash password
     const hashedPassword = await bcrypt.hash(password, 10);
     // update passowrd in user model
-    await User.findOneAndUpdate(
-      { token: token },
-      { password: hashedPassword },
-      { new: true }
-    );
+    await User.findOneAndUpdate({ token: token }, { password: hashedPassword });
     // return response
     return res.status(200).json({
       success: true,
