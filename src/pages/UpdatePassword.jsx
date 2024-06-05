@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { LuEye, LuEyeOff } from "react-icons/lu";
 import { Link } from "react-router-dom";
 import { resetPassword } from "../services/operations/authAPI";
@@ -8,6 +8,7 @@ import { FaArrowLeftLong } from "react-icons/fa6";
 
 const UpdatePassword = () => {
   const { loading } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
   const [formData, setFormData] = useState({
@@ -29,7 +30,7 @@ const UpdatePassword = () => {
   const handleOnSubmit = (e) => {
     e.preventDefault();
     const token = location.pathname.split("/").at(-1);
-    dispatch(resetPassword(password, confirmPassword, token));
+    dispatch(resetPassword(password, confirmPassword, token, navigate));
   };
   return (
     <div className="grid min-h-[calc(100vh-3.5rem)] place-items-center">
