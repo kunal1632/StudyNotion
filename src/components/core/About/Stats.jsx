@@ -20,7 +20,7 @@ const Stats = () => {
     },
   ];
   return (
-    <div className="bg-richblack-700">
+    <div className="bg-richblack-800">
       <div className="flex flex-col gap-10 justify-between w-11/12 max-w-maxContent text-white mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 text-center">
           {statsData.map((data, index) => {

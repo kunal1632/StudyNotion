@@ -14,7 +14,7 @@ const About = () => {
   return (
     <div>
       {/* section 1 */}
-      <section className="bg-richblack-700">
+      <section className="bg-richblack-800">
         <div className=" relative w-11/12 mx-auto max-w-maxContent flex flex-col items-center justify-between gap-10 text-center text-white">
           <header className="mx-auto py-20 text-4xl font-semibold lg:w-[70%]">
             Driving Innovation in Online Education for a{" "}

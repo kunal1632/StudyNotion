@@ -5,7 +5,7 @@ import { CiLink } from "react-icons/ci";
 
 const ContactDetials = () => {
   return (
-    <div className="flex flex-col gap-5 p-10 bg-richblack-800 rounded-xl">
+    <div className="flex flex-col gap-12 p-10 bg-richblack-800 rounded-xl">
       <div className="flex gap-3">
         <HiMiniChatBubbleLeftRight className="text-richblack-200 text-2xl" />
         <div>
