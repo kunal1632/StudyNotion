@@ -1,6 +1,7 @@
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import OpenRoute from "./components/core/Auth/OpenRoute";
+import PrivateRoute from "./components/core/Auth/PrivateRoute";
 
 import Home from "./pages/Home";
 import Navbar from "./components/common/Navbar";
@@ -11,6 +12,10 @@ import UpdatePassword from "./pages/UpdatePassword";
 import VerifyEmail from "./pages/VerifyEmail";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import Dashboard from "./pages/Dashboard";
+import MyProfile from "./components/core/Dashboard/MyProfile";
+import Error from "./pages/Error";
+import Settings from "./components/core/Dashboard/Settings";
 
 function App() {
   return (
@@ -69,16 +74,20 @@ function App() {
           }
         />
 
-        <Route
-          path="contact"
-          element={
-            <OpenRoute>
-              <Contact />
-            </OpenRoute>
-          }
-        />
+        <Route path="contact" element={<Contact />} />
 
-        <Route path="dashboard/my-profile" element={<MyProfile />} />
+        <Route
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        >
+          <Route path="dashboard/my-profile" element={<MyProfile />} />
+          <Route path="dashboard/settings" element={<Settings />} />
+        </Route>
+
+        <Route path="*" element={<Error />} />
       </Routes>
     </div>
   );
