@@ -54,7 +54,7 @@ const Sidebar = () => {
               text2: "You will be logged out of your account",
               btn1Text: "Logout",
               btn2Text: "Cancel",
-              btn1Handler: () => dispatchEvent(logout(navigate)),
+              btn1Handler: () => dispatch(logout(navigate)),
               btn2Handler: () => setConfirmationModal(null),
             })
           }

@@ -8,6 +8,8 @@ exports.updateProfile = async (req, res) => {
   try {
     // get data from the body
     const {
+      firstName = "",
+      lastName = "",
       dateOfBirth = "",
       about = "",
       contactNumber = "",
@@ -19,8 +21,11 @@ exports.updateProfile = async (req, res) => {
 
     // find profile
     const userDetail = await User.findById(id);
-    const profileId = userDetail.additionalDetails;
-    const profileDetails = await Profile.findById(profileId);
+    const profileDetails = await Profile.findById(userDetail.additionalDetails);
+
+    const user = await User.findByIdAndUpdate(id, { firstName, lastName });
+    await user.save();
+
     // update profile
     profileDetails.dateOfBirth = dateOfBirth;
     profileDetails.about = about;
@@ -28,11 +33,15 @@ exports.updateProfile = async (req, res) => {
     profileDetails.gender = gender;
 
     await profileDetails.save();
+
+    const updatedUserDetails = await User.findById(id)
+      .populate("additionalDetails")
+      .exec();
     // return response
     return res.status(200).json({
       success: true,
       message: "Profile updated successfully",
-      profileDetails,
+      updatedUserDetails,
     });
   } catch (error) {
     return res.status(500).json({
@@ -109,7 +118,7 @@ exports.getAllUserDetails = async (req, res) => {
 exports.updateDisplayPicture = async (req, res) => {
   try {
     // get user id and image file
-    const displayPicture = req.body.files.displayPicture;
+    const displayPicture = req.files.displayPicture;
     const userId = req.user.id;
 
     // upload image to cloudinary
@@ -132,6 +141,7 @@ exports.updateDisplayPicture = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Image updated successfully",
+      data: updatedProfile,
     });
   } catch (error) {
     return res.status(500).json({
