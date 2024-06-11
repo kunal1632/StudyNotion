@@ -70,3 +70,42 @@ export function updateProfile(token, formData) {
     toast.dismiss(toastId);
   };
 }
+
+export async function changePassword(token, formData) {
+  const toastId = toast.loading("Loading...");
+  try {
+    const response = await apiConnector("POST", CHANGE_PASSWORD_API, formData, {
+      Authorization: `Bearer ${token}`,
+    });
+    console.log("CHANGE_PASSWORD_API RESPONSE.....", response);
+    if (!response.data.success) {
+      throw new Error(response.data.message);
+    }
+    toast.success("Password change successfully");
+  } catch (error) {
+    console.log("CHANGE_PASSWORD_API ERROR.....", error);
+    toast.error(error.response.data.message);
+  }
+  toast.dismiss(toastId);
+}
+
+export function deleteProfile(token, navigate) {
+  return async (dispatch) => {
+    const toastId = toast.loading("Loading...");
+    try {
+      const response = apiConnector("DELETE", DELETE_PROFILE_API, null, {
+        Authorization: `Bearer ${token}`,
+      });
+      console.log("DELETE_PROFILE_API RESPONSE.....", response);
+      if (!(await response).data.success) {
+        throw new Error((await response).data.message);
+      }
+      toast.success("Profile Deleted successfully");
+      dispatch(logout(navigate));
+    } catch (error) {
+      console.log("DELETE_PROFILE_API RESPONSE.....", error);
+      toast.error("Could not delete profile");
+    }
+    toast.dismiss(toastId);
+  };
+}
