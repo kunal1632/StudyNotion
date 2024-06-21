@@ -1,11 +1,6 @@
 const mongoose = require("mongoose");
 
 const courseSchema = new mongoose.Schema({
-  instructor: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    red: "User",
-  },
   courseName: {
     type: String,
   },
@@ -68,6 +63,18 @@ const courseSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
+
+  instructions: {
+    type: [String],
+  },
+  status: {
+    type: String,
+    enum: ["Draft", "Published"],
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model("Course", courseSchema);

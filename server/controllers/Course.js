@@ -3,6 +3,9 @@ const Tag = require("../models/Category");
 const User = require("../models/User");
 const { uploadImageToCloudinary } = require("../utils/imageUploader");
 const Category = require("../models/Category");
+const { converSecondsToDuration } = require("../utils/secToDuration");
+const Section = require("../models/Section");
+const SubSection = require("../models/SubSection");
 
 // createcouese handler function
 exports.createCourse = async (req, res) => {
@@ -18,6 +21,14 @@ exports.createCourse = async (req, res) => {
     } = req.body;
     // get thumbnail
     const thumbnail = req.files.thumbnailImage;
+
+    console.log("courseName", courseName);
+    console.log("courseDescription", courseDescription);
+    console.log("whatYouWillLearn", whatYouWillLearn);
+    console.log("price", price);
+    console.log("tag", tag);
+    console.log("category", category);
+    console.log("thumbnail", thumbnail);
 
     // validation
     if (
@@ -173,6 +184,208 @@ exports.getCourseDetails = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: error.message,
+    });
+  }
+};
+
+// edit course
+exports.editCourse = async (req, res) => {
+  try {
+    const { courseId } = req.body;
+    const updates = req.body;
+    const course = await Course.findById(courseId);
+
+    if (!course) {
+      return res.status(404).json({ error: "Course not found" });
+    }
+
+    // if thumbnail iamge is found update it
+    if (req.files) {
+      console.log("thumbnail update");
+      const thumbnail = req.files.thumbnailImage;
+      const thumbnailImage = await uploadImageToCloudinary(
+        thumbnail,
+        process.env.FOLDER_NAME
+      );
+      course.thumbnail = thumbnailImage.secure_url;
+    }
+
+    // update only the field that are present in the request body
+    for (const key in updates) {
+      if (key === "tag" || key === "instructions") {
+        course[key] = JSON.parse(updates[key]);
+      } else {
+        course[key] = updates[key];
+      }
+    }
+
+    await course.save();
+
+    const updatedCourse = await Course.findOne({ _id: courseId })
+      .populate({
+        path: "instructor",
+        populate: {
+          path: "additionalDetails",
+        },
+      })
+      .populate("category")
+      .populate("ratingAndReviews")
+      .populate({
+        path: "courseContent",
+        populate: {
+          path: "subSection",
+        },
+      })
+      .exec();
+
+    res.json({
+      success: true,
+      message: "Course updated successfully",
+      data: updatedCourse,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+// get full course detials
+
+exports.getFullCourseDetails = async (req, res) => {
+  try {
+    const { courseId } = req.body;
+    const userId = req.user.id;
+    const courseDetials = await Course.findOne({ _id: courseId })
+      .populate({
+        path: "instructor",
+        populate: {
+          path: "additionalDetails",
+        },
+      })
+      .populate("category")
+      .populate("ratingAndReviews")
+      .populate({
+        path: "courseContent",
+        populate: {
+          path: "subSection",
+        },
+      })
+      .exec();
+
+    let courseProgressCount = await CourseProgress.findOne({
+      courseId: courseId,
+      userId: userId,
+    });
+
+    console.log("courseProgressCount : ", courseProgressCount);
+
+    if (!courseDetials) {
+      return res.status(400).json({
+        success: false,
+        message: `Could not find course with id: ${courseId}`,
+      });
+    }
+
+    let totalDurationInSeconds = 0;
+    courseDetials.courseContent.forEach((content) => {
+      content.subSection.forEach((subSection) => {
+        const timeDurationInSeconds = parseInt(subSection.timeDuration);
+        totalDurationInSeconds += timeDurationInSeconds;
+      });
+    });
+
+    const totalDuration = converSecondsToDuration(totalDurationInSeconds);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        courseDetials,
+        totalDuration,
+        completedVideos: courseProgressCount?.completedVideos
+          ? courseProgressCount?.completedVideos
+          : [],
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// get a list of course for a given instructor
+
+exports.getInstructorCourses = async (req, res) => {
+  try {
+    // get the instructor id from the authenticated user or reques body
+    const instructorId = req.user.id;
+
+    // find all course belongin to the instructor
+    const instructorCourses = await Course.find({
+      instructor: instructorId,
+    }).sort({ createdAt: -1 });
+
+    // return the instructor course
+    res.status(200).json({
+      success: true,
+      data: instructorCourses,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve instructor courses",
+      error: error.message,
+    });
+  }
+};
+
+// delete the course
+exports.deleteCourse = async (req, res) => {
+  try {
+    const { courseId } = req.body;
+    // find the course
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+    // unenroll students from the course
+    const studentsEnrolled = course.studentsEnrolled;
+    for (const studentId of studentsEnrolled) {
+      await User.findByIdAndUpdate(studentId, { $pull: { courses: courseId } });
+    }
+
+    // delete sections and sub-sections
+    const courseSections = course.courseContent;
+    for (const sectionId of courseSections) {
+      // delete subsections of the section
+      const section = await Section.findById(sectionId);
+      if (section) {
+        const subSections = section.subSection;
+        for (const subSectionId of subSections) {
+          await SubSection.findByIdAndDelete(subSectionId);
+        }
+      }
+      // delete the section
+      await Section.findByIdAndDelete(sectionId);
+    }
+
+    // delete the course
+    await Course.findByIdAndDelete(courseId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Course delted succesfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+      error: error.message,
     });
   }
 };

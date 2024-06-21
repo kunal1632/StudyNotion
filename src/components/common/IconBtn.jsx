@@ -15,8 +15,8 @@ const IconBtn = ({
       onClick={onClick}
       type={type}
       className={`flex items-center ${
-        outline ? "border-yellow-50 bg-transparent" : "bg-yellow-50"
-      } cursor-pointer gap-x-2 rounded-md py-2 px-5 font-semibold text-richblack-900 transition-all duration-200  hover:opacity-90 ${customeClasses}`}
+        outline ? "border border-yellow-50 bg-transparent" : "bg-yellow-50"
+      } cursor-pointer gap-x-2 rounded-md py-2 px-5 font-semibold text-richblack-900 ${customeClasses}`}
     >
       {children ? (
         <>
