@@ -1,16 +1,21 @@
 import React, { useState } from "react";
-import { set, useForm } from "react-hook-form";
-import IconBtn from "../../../../common/IconBtn";
-import { MdAddCircleOutline } from "react-icons/md";
+import { useForm } from "react-hook-form";
+import { IoAddCircleOutline } from "react-icons/io5";
+import { MdNavigateNext } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { BiRightArrow } from "react-icons/bi";
-import { setEditCourse, setStep } from "../../../../../slices/courseSlice";
+import {
+  setCourse,
+  setEditCourse,
+  setStep,
+} from "../../../../../slices/courseSlice";
 import toast from "react-hot-toast";
 import {
   createSection,
   updateSection,
 } from "../../../../../services/operations/courseDetialsAPI";
-import { PiSelectionInverseDuotone } from "react-icons/pi";
+import NestedView from "./NestedView";
+import IconBtn from "../../../../common/IconBtn";
 
 const CourseBuilderForm = () => {
   const {
@@ -37,7 +42,7 @@ const CourseBuilderForm = () => {
   };
   const goToNext = () => {
     if (course.courseContent.length === 0) {
-      toast.errors("Please add atleast one section");
+      toast.error("Please add atleast one section");
       return;
     }
     if (
@@ -54,12 +59,12 @@ const CourseBuilderForm = () => {
   const onSubmit = async (data) => {
     setLoading(true);
     let result;
-
+    console.log(editSectionName);
     if (editSectionName) {
       // we are editing the seciton name
       result = await updateSection(
         {
-          sectionName: DataTransfer.sectionName,
+          sectionName: data.sectionName,
           sectionId: editSectionName,
           courseId: course._id,
         },
@@ -73,36 +78,61 @@ const CourseBuilderForm = () => {
         },
         token
       );
+      console.log(result);
     }
+
+    // update values
+    if (result) {
+      dispatch(setCourse(result));
+      setEditSectionName(null);
+      setValue("sectionName", "");
+    }
+
+    setLoading(false);
+  };
+
+  const handleChangeEditSectionName = (sectionId, sectionName) => {
+    if (editSectionName === sectionId) {
+      cancelEdit();
+      return;
+    }
+    setEditSectionName(sectionId);
+    setValue("sectionName", sectionName);
   };
   return (
-    <div>
-      <p>Course Builder</p>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label>Section Name</label>
+    <div className="space-y-8 rounded-md border-[1px] border-richblue-700 bg-richblack-800 p-6">
+      <p className="text-2xl font-semibold text-richblack-5">Course Builder</p>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div className="flex flex-col space-y-2">
+          <label className="text-sm text-richblack-5" htmlFor="sectionName">
+            Section Name<sup className="text-pink-200">*</sup>
+          </label>
           <input
             id="sectionName"
-            placeholder="Add Section Name"
+            placeholder="Add a section to buid your course"
             {...register("sectionName", { required: true })}
-            className="w-full"
+            className="form-style w-full"
           />
-          {errors.sectionName && <span>Section Name is required</span>}
+          {errors.sectionName && (
+            <span className="ml-2 text-xs tracking-wide text-pink-200">
+              Section Name is required
+            </span>
+          )}
         </div>
-        <div className="flex w-full">
+        <div className="flex w-full items-end gap-x-4">
           <IconBtn
             type="Submit"
             text={editSectionName ? "Edit Section Name" : "Create Section"}
+            disabled={loading}
             outline={true}
-            customeClasses={"text-white"}
           >
-            <MdAddCircleOutline className="text-yellow-50" size={20} />
+            <IoAddCircleOutline className="text-yellow-50" size={20} />
           </IconBtn>
           {editSectionName && (
             <button
               type="button"
               onClick={cancelEdit}
-              className="text-sm text-richblack-300 underline ml-10"
+              className="text-sm text-richblack-300 underline "
             >
               Cancel Edit
             </button>
@@ -110,17 +140,21 @@ const CourseBuilderForm = () => {
         </div>
       </form>
 
-      {/* {course.courseContent.length > 0 && <NestedView />} */}
+      {course?.courseContent?.length > 0 && (
+        <NestedView handleChangeEditSectionName={handleChangeEditSectionName} />
+      )}
+
+      {/* next and prev button */}
 
       <div className="flex justify-end gap-x-3">
         <button
-          className="text-white rounded-md cursor-pointer "
           onClick={goBack}
+          className={`flex cursor-pointer items-center gap-x-2 rounded-md bg-richblack-300 py-[8px] px-[20px] font-semibold text-richblack-900`}
         >
           Back
         </button>
-        <IconBtn text="Next" onClick={goToNext}>
-          <BiRightArrow />
+        <IconBtn disabled={loading} text="Next" onClick={goToNext}>
+          <MdNavigateNext />
         </IconBtn>
       </div>
     </div>

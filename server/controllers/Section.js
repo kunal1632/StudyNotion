@@ -1,5 +1,6 @@
 const Section = require("../models/Section");
 const Course = require("../models/Course");
+const SubSection = require("../models/SubSection");
 
 exports.createSection = async (req, res) => {
   try {
@@ -53,7 +54,7 @@ exports.createSection = async (req, res) => {
 exports.updateSection = async (req, res) => {
   try {
     // data fetch
-    const { sectionName, sectionId } = req.body;
+    const { sectionName, sectionId, courseId } = req.body;
 
     // data validation
     if (!sectionName || !sectionId) {
@@ -68,11 +69,19 @@ exports.updateSection = async (req, res) => {
       { sectionName },
       { new: true }
     );
+
+    const course = await Course.findById(courseId)
+      .populate({
+        path: "courseContent",
+        populate: { path: "subSection" },
+      })
+      .exec();
+
     // return response
     return res.status(200).json({
       success: true,
       message: "Section updated successfully",
-      section,
+      data: course,
     });
   } catch (error) {
     return res.status(500).json({
@@ -87,14 +96,43 @@ exports.updateSection = async (req, res) => {
 exports.deleteSection = async (req, res) => {
   try {
     // data fetch from the params
-    const { sectionId } = req.params;
+    const { sectionId, courseId } = req.body;
+
+    // remove section from the course
+    await Course.findByIdAndUpdate(courseId, {
+      $pull: {
+        courseContent: sectionId,
+      },
+    });
+
+    const section = await Section.findById(sectionId);
+    if (!section) {
+      return res.status(404).json({
+        success: false,
+        message: "Section not Found",
+      });
+    }
+
+    // delete all subsection
+    await SubSection.deleteMany({ _id: { $in: section.subSection } });
 
     // delete the section
     await Section.findByIdAndDelete(sectionId);
+
+    const course = await Course.findById(courseId)
+      .populate({
+        path: "courseContent",
+        populate: {
+          path: "subSection",
+        },
+      })
+      .exec();
+
     // return response
     return res.status(200).json({
       success: true,
       message: "Section deleted successfully",
+      data: course,
     });
   } catch (error) {
     return res.status(500).json({

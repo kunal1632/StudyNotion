@@ -62,10 +62,10 @@ const CourseInformationForm = () => {
       currentValues.coursePrice !== course.price ||
       currentValues.courseTags.toString() !== course.tag.toString() ||
       currentValues.courseBenefits !== course.whatYouWillLearn ||
-      currentValues.courseCategories._id !== course.category._id ||
-      currentValues.courseImage !== course.thumbnail ||
+      currentValues.courseCategory._id !== course.category._id ||
       currentValues.courseRequirements.toString() !==
-        course.instructions.toString()
+        course.instructions.toString() ||
+      currentValues.courseImage !== course.thumbnail
     ) {
       return true;
     } else {
@@ -77,8 +77,8 @@ const CourseInformationForm = () => {
       if (isFormUpdated()) {
         const currentValues = getValues();
         const formData = new FormData();
-
-        formData.append("courseId", course._id);
+        console.log("courase", course);
+        formData.append("courseId", course?._id);
         if (currentValues.courseTitle !== course.courseName) {
           formData.append("courseName", data.courseTitle);
         }
@@ -94,8 +94,8 @@ const CourseInformationForm = () => {
         if (currentValues.courseBenefits !== course.whatYouWillLearn) {
           formData.append("whatYouWillLearn", data.courseBenefits);
         }
-        if (currentValues.courseCategories._id !== course.category._id) {
-          formData.append("category", data.courseCategories);
+        if (currentValues.courseCategory._id !== course.category._id) {
+          formData.append("category", data.courseCategory);
         }
         if (
           currentValues.courseRequirements.toString() !==
@@ -124,6 +124,7 @@ const CourseInformationForm = () => {
     }
 
     // create a new course
+
     const formData = new FormData();
     formData.append("courseName", data.courseTitle);
     formData.append("courseDescription", data.courseShortDesc);
@@ -275,7 +276,7 @@ const CourseInformationForm = () => {
 
       {/* requirement instruction */}
       <RequirmentField
-        name="courseRequirement"
+        name="courseRequirements"
         label="Requirements/Instruction"
         register={register}
         errors={errors}
