@@ -15,7 +15,7 @@ exports.createRating = async (req, res) => {
       _id: courseId,
       studentsEnrolled: { $elemMatch: { $eq: userId } },
     });
-    if (courseDetails) {
+    if (!courseDetails) {
       return res.status(404).json({
         success: false,
         message: "Student is not enrolled in the course",
@@ -43,7 +43,7 @@ exports.createRating = async (req, res) => {
 
     //update course
     const updatedCourseDetails = await Course.findByIdAndUpdate(
-      courseId,
+      { _id: courseId },
       {
         $push: { ratingAndReviews: ratingReview._id },
       },
@@ -54,6 +54,7 @@ exports.createRating = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "rating and review created successfully",
+      ratingReview,
     });
   } catch (error) {
     return res.status(500).json({
@@ -67,7 +68,7 @@ exports.createRating = async (req, res) => {
 exports.getAverageRating = async (req, res) => {
   try {
     // get course id
-    const courseId = req.body.courseid;
+    const courseId = req.body.courseId;
     // calculate average rating
 
     const result = await RatingAndReviews.aggregate([
@@ -110,16 +111,14 @@ exports.getAllRating = async (req, res) => {
     const allReviews = await RatingAndReviews.find({})
       .sort({ rating: "desc" })
       .populate({ path: "User", select: "FirstName lastName email image" })
-      .populate({ path: "Course", select: "courseName" })
+      .populate({ path: "course", select: "courseName" })
       .exec();
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "All reviews fetched successfully",
-        data: allReviews,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "All reviews fetched successfully",
+      data: allReviews,
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,

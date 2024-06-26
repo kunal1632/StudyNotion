@@ -8,7 +8,12 @@ import {
   deleteCourse,
   fetchInstructorCourses,
 } from "../../../../services/operations/courseDetialsAPI";
+import { formatDate } from "../../../../services/formatDate";
 import { useNavigate } from "react-router-dom";
+import { FaCheck } from "react-icons/fa";
+import { FiEdit2 } from "react-icons/fi";
+import { HiClock } from "react-icons/hi";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 const CoursesTable = ({ courses, setCourses }) => {
   const dispatch = useDispatch();
@@ -16,6 +21,7 @@ const CoursesTable = ({ courses, setCourses }) => {
   const { token } = useSelector((state) => state.auth);
   const [loading, setLoading] = useState(false);
   const [confirmationModal, setConfirmationModal] = useState(null);
+  const TRUNCATE_LENGTH = 30;
 
   const handleCourseDelete = async (courseId) => {
     setLoading(true);
@@ -28,63 +34,95 @@ const CoursesTable = ({ courses, setCourses }) => {
     setLoading(false);
   };
   return (
-    <div className="text-white">
-      <Table>
+    <>
+      <Table className="rounded-xl border border-richblack-800">
         <Thead>
-          <Tr>
-            <Th>Courses</Th>
+          <Tr className="flex gap-x-10 rounded-t-md border-b border-b-richblack-800 px-6 py-2">
+            <Th className="flex-1 text-left text-sm font-medium uppercase text-richblack-100">
+              Courses
+            </Th>
 
-            <Th>Duration</Th>
+            <Th className="text-left text-sm font-medium uppercase text-richblack-100">
+              Duration
+            </Th>
 
-            <Th>Price</Th>
+            <Th className="text-left text-sm font-medium uppercase text-richblack-100">
+              Price
+            </Th>
 
-            <Th>Action</Th>
+            <Th className="text-left text-sm font-medium uppercase text-richblack-100">
+              Action
+            </Th>
           </Tr>
         </Thead>
         <Tbody>
           {courses.length === 0 ? (
             <Tr>
-              <Td>No Courses Found</Td>
+              <Td className="py-10 text-center text-2xl font-medium text-richblack-100">
+                No Courses Found
+              </Td>
             </Tr>
           ) : (
             courses.map((course) => (
               <Tr
                 key={course._id}
-                className="flex gap-x-10 border-richblack-800 p-8"
+                className="flex gap-x-10 border-b border-richblack-800 px-6 py-8"
               >
-                <Td className="flex gap-x-4">
+                <Td className="flex flex-1 gap-x-4">
                   <img
                     src={course?.thumbnail}
-                    className="h-[150px] rounded-lg object-cover"
-                    alt="thumbnail"
+                    className="h-[148px] w-[220px] rounded-lg object-cover"
+                    alt={course?.courseName}
                   />
-                  <div className="flex flex-col">
-                    <p>{course.courseName}</p>
-                    <p>{course.courseDescription}</p>
-                    <p>Created: </p>
+                  <div className="flex flex-col justify-between">
+                    <p className="text-lg font-semibold text-richblack-5">
+                      {course.courseName}
+                    </p>
+                    <p className="text-xs text-richblack-300">
+                      {course.courseDescription.split(" ").length >
+                      TRUNCATE_LENGTH
+                        ? course.courseDescription
+                            .split(" ")
+                            .slice(0, TRUNCATE_LENGTH)
+                            .join(" ") + "..."
+                        : course.courseDescription}
+                    </p>
+                    <p className="text-[12px] text-white">
+                      Created: {formatDate(course.createdAt)}
+                    </p>
                     {course.status === COURSE_STATUS.DRAFT ? (
-                      <p className="text-pink-300">DRAFTED</p>
+                      <p className="flex w-fit flex-row items-center gap-2 rounded-full bg-richblack-700 px-2 py-[2px] text-[12px] font-medium text-pink-100">
+                        <HiClock size={14} />
+                        DRAFTED
+                      </p>
                     ) : (
-                      <p className="text-yellow-50">PUBLISHED</p>
+                      <p className="flex w-fit flex-row items-center gap-2 rounded-full bg-richblack-700 px-2 py-[2px] text-[12px] font-medium text-yellow-100">
+                        <FaCheck size={8} />
+                        PUBLISHED
+                      </p>
                     )}
                   </div>
                 </Td>
 
-                <Td>2hr 30min</Td>
-                <Td>${course.price}</Td>
+                <Td className="text-sm font-medium text-richblack-100">
+                  2hr 30min
+                </Td>
+                <Td className="text-sm font-medium text-richblack-100">
+                  ${course.price}
+                </Td>
 
-                <Td>
+                <Td className="text-sm font-medium text-richblack-100">
                   <button
-                    className=""
+                    disabled={loading}
+                    title="Edit"
                     onClick={() =>
                       navigate(`/dashboard/edit-course/${course._id}`)
                     }
-                    disabled={loading}
+                    className="px-2 transition-all duration-200 hover:scale-110 hover:text-caribbeangreen-300"
                   >
-                    EDIT
+                    <FiEdit2 size={20} />
                   </button>
                   <button
-                    className=""
                     onClick={() =>
                       setConfirmationModal({
                         text1: "Do you want to delete this course?",
@@ -101,8 +139,10 @@ const CoursesTable = ({ courses, setCourses }) => {
                       })
                     }
                     disabled={loading}
+                    title="Delete"
+                    className="px-1 transition-all duration-200 hover:scale-110 hover:text-[#ff0000]"
                   >
-                    DELETE
+                    <RiDeleteBin6Line size={20} />
                   </button>
                 </Td>
               </Tr>
@@ -112,7 +152,7 @@ const CoursesTable = ({ courses, setCourses }) => {
       </Table>
 
       {confirmationModal && <ConfirmationModal modalData={confirmationModal} />}
-    </div>
+    </>
   );
 };
 

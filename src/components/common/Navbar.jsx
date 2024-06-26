@@ -21,13 +21,15 @@ function Navbar() {
   const [loading, setLoading] = useState(false);
 
   const fetchSubLinks = async () => {
+    setLoading(true);
     try {
       const result = await apiConnector("GET", categories.CATEGORIES_API);
-      setSubLinks(result?.data?.allCategories);
+      setSubLinks(result?.data?.data);
       console.log(result);
     } catch (error) {
       console.log("Could not fetch the category list");
     }
+    setLoading(false);
   };
   useEffect(() => {
     fetchSubLinks();
