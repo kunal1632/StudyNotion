@@ -9,7 +9,6 @@ const { default: mongoose } = require("mongoose");
 const CourseProgress = require("../models/CourseProgress");
 
 // capture the payment and initate the razorpay order
-
 exports.capturePayment = async (req, res) => {
   // get course id and user id
   const { courses } = req.body;
@@ -59,10 +58,6 @@ exports.capturePayment = async (req, res) => {
     amount: total_amount * 100,
     currency: "INR",
     recepit: Math.random(Date.now()).toString(),
-    notes: {
-      courseId: course_id,
-      userId,
-    },
   };
   try {
     // initaiate the payment using razorpay
@@ -76,7 +71,7 @@ exports.capturePayment = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.json({
+    res.status(500).json({
       success: false,
       message: "Could not initate order",
     });
@@ -100,7 +95,7 @@ exports.verifyPayment = async (req, res) => {
     !courses ||
     !userId
   ) {
-    return res.status(200).json({ success: false, message: "Payment Failed" });
+    return res.status(400).json({ success: false, message: "Payment Failed" });
   }
 
   let body = razorpay_order_id + "|" + razporpay_payment_id;
