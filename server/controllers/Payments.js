@@ -9,7 +9,7 @@ const {
 const {
   paymentSuccessEmail,
 } = require("../mail/templates/paymentSuccessEmail");
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 const CourseProgress = require("../models/CourseProgress");
 
 // capture the payment and initate the razorpay order
@@ -61,7 +61,7 @@ exports.capturePayment = async (req, res) => {
   const options = {
     amount: total_amount * 100,
     currency: "INR",
-    recepit: Math.random(Date.now()).toString(),
+    receipt: Math.random(Date.now()).toString(),
   };
   try {
     // initaiate the payment using razorpay
@@ -69,7 +69,7 @@ exports.capturePayment = async (req, res) => {
     console.log(paymentResponse);
 
     // return response
-    return res.status(200).json({
+    res.json({
       success: true,
       data: paymentResponse,
     });
@@ -86,7 +86,7 @@ exports.capturePayment = async (req, res) => {
 
 exports.verifyPayment = async (req, res) => {
   const razorpay_order_id = req.body?.razorpay_order_id;
-  const razporpay_payment_id = req.body?.razporpay_payment_id;
+  const razorpay_payment_id = req.body?.razorpay_payment_id;
   const razorpay_signature = req.body?.razorpay_signature;
   const courses = req.body?.courses;
 
@@ -94,7 +94,7 @@ exports.verifyPayment = async (req, res) => {
 
   if (
     !razorpay_order_id ||
-    !razporpay_payment_id ||
+    !razorpay_payment_id ||
     !razorpay_signature ||
     !courses ||
     !userId
@@ -102,7 +102,7 @@ exports.verifyPayment = async (req, res) => {
     return res.status(400).json({ success: false, message: "Payment Failed" });
   }
 
-  let body = razorpay_order_id + "|" + razporpay_payment_id;
+  let body = razorpay_order_id + "|" + razorpay_payment_id;
 
   const expectedSignature = crypto
     .createHmac("sha256", process.env.RAZORPAY_SECRET)
@@ -122,7 +122,7 @@ exports.sendPaymentSuccessEmail = async (req, res) => {
 
   const userId = req.user.id;
 
-  if (!order || !paymentId || !amount || !userId) {
+  if (!orderId || !paymentId || !amount || !userId) {
     return res
       .status(400)
       .json({ success: false, message: "Please provide all the detials" });
