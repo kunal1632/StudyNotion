@@ -161,7 +161,7 @@ const enrolledStudents = async (courses, userId, res) => {
       // find the course and enroll the student in it
       const enrolledCourse = await Course.findOneAndUpdate(
         { _id: courseId },
-        { $push: { studentsEnroled: userId } },
+        { $push: { studentsEnrolled: userId } },
         { new: true }
       );
 

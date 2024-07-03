@@ -9,6 +9,7 @@ exports.createRating = async (req, res) => {
     // fetchdata from body
     const userId = req.user.id;
     const { rating, review, courseId } = req.body;
+    console.log(courseId);
 
     // check if user is enrolled or not
     const courseDetails = await Course.findOne({

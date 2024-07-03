@@ -83,6 +83,7 @@ router.get("/getInstructorCourses", auth, isInstructor, getInstructorCourses);
 // Delete a Course
 router.delete("/deleteCourse", deleteCourse);
 
+// update the progress fo the course for the student
 router.post("/updateCourseProgress", auth, isStudent, updateCourseProgress);
 
 // ********************************************************************************************************
