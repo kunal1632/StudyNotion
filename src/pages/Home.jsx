@@ -10,6 +10,7 @@ import TimeLineSection from "../components/core/HomePage/TimeLineSection";
 import LearningLanguageSection from "../components/core/HomePage/LearningLanguageSection";
 import InstructorSection from "../components/core/HomePage/InstructorSection";
 import ExploreMore from "../components/core/HomePage/ExploreMore";
+import ReviewSlider from "../components/common/ReviewSlider";
 
 const Home = () => {
   return (
@@ -157,6 +158,7 @@ const Home = () => {
           Review from Other Learners
         </h2>
         {/* review silder here */}
+        <ReviewSlider />
       </div>
       {/* foote */}
       <Footer />

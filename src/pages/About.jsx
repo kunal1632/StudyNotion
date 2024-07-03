@@ -9,12 +9,13 @@ import Stats from "../components/core/About/Stats";
 import LearningGrid from "../components/core/About/LearningGrid";
 import ContactFormSection from "../components/core/About/ContactFormSection";
 import Footer from "../components/common/Footer";
+import ReviewSlider from "../components/common/ReviewSlider";
 
 const About = () => {
   return (
     <div>
       {/* section 1 */}
-      <section className="bg-richblack-800">
+      <section className="bg-richblack-700">
         <div className=" relative w-11/12 mx-auto max-w-maxContent flex flex-col items-center justify-between gap-10 text-center text-white">
           <header className="mx-auto py-20 text-4xl font-semibold lg:w-[70%]">
             Driving Innovation in Online Education for a{" "}
@@ -122,9 +123,13 @@ const About = () => {
       </section>
 
       {/* section 5 */}
-      <div>
-        Reviews from other learners
-        {/* <ReviewSlider/> */}
+      <div className="relative mx-auto my-20 w-11/12 max-w-maxContent gap-8 bg-richblack-900 text-white">
+        {/* Reviws from Other Learner */}
+        <h1 className="text-center text-4xl font-semibold mt-8">
+          Reviews from other learners
+        </h1>
+        {/* <ReviewSlider /> */}
+        <ReviewSlider />
       </div>
 
       {/* footer */}

@@ -2,6 +2,7 @@ import React from "react";
 import ContactUsForm from "../components/core/ContactPage/ContactUsForm";
 import ContactDetials from "../components/core/ContactPage/ContactDetials";
 import Footer from "../components/common/Footer";
+import ReviewSlider from "../components/common/ReviewSlider";
 
 const Contact = () => {
   return (
@@ -22,11 +23,12 @@ const Contact = () => {
         </div>
       </div>
 
-      <div className="flex items-center justify-center mt-36 mb-14">
-        <h2 className="text-3xl text-pure-greys-5 font-bold">
+      <div className="relative mx-auto my-20  w-11/12 max-w-maxContent bg-richblack-900 text-white">
+        <h2 className="text-4xl mt-8 font-semibold text-center">
           Reviews from other learners
         </h2>
         {/* <ReviewSlider/> */}
+        <ReviewSlider />
       </div>
 
       <Footer />
