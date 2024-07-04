@@ -35,6 +35,11 @@
     "build": "react-scripts build",
     "eject": "react-scripts eject",
     "server": "cd server && npm run dev",
+    "install-server": "cd server && npm i",
+    "start-server": "cd server && node index.js",
+    "install-client": "npm i",
+    "build-client": "npm run build",
+    "start-client": "npm run start",
     "dev": "concurrently -n \"client,server\" -c \"bgBlue,bgYellow\" \"npm start\" \"npm run server\""
   },
   "eslintConfig": {
