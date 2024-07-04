@@ -1,4 +1,5 @@
 const CourseProgress = require("../models/CourseProgress");
+const Course = require("../models/Course");
 const Profile = require("../models/Profile");
 const User = require("../models/User");
 const { uploadImageToCloudinary } = require("../utils/imageUploader");
@@ -225,8 +226,8 @@ exports.instructorDashboard = async (req, res) => {
     const courseDetails = await Course.find({ instructor: req.user.id });
 
     const courseData = courseDetails.map((course) => {
-      const totalStudentsEnrolled = course.studentsEnroled.length;
-      const totalAmountGenerated = totalStudentsEnrolled * course.proce;
+      const totalStudentsEnrolled = course.studentsEnrolled.length;
+      const totalAmountGenerated = totalStudentsEnrolled * course.price;
 
       const CourseDataWithStats = {
         _id: course._id,
