@@ -21,12 +21,27 @@ database.connect();
 // middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    credentials: true,
-  })
-);
+// Define a list of allowed origins
+const allowedOrigins = [
+  "https://study-notion-divek.vercel.app",
+  "https://www.study-notion-divek.vercel.app",
+  "http://localhost:3000",
+];
+
+// CORS configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      console.error(`Blocked by CORS: ${origin}`);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+
+// Use the CORS middleware with the configured options
+app.use(cors(corsOptions));
 
 app.use(
   fileUpload({
